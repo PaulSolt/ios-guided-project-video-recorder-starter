@@ -7,20 +7,57 @@
 //
 
 import UIKit
+import AVFoundation
 
 class CameraViewController: UIViewController {
 
+    lazy private var captureSession = AVCaptureSession()
+    
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var cameraView: CameraPreviewView!
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
+        // Resize camera preview to fill the entire screen
+        cameraView.videoPlayerView.videoGravity = .resizeAspectFill
+        setUpCaptureSession()
+    }
 
-		// Resize camera preview to fill the entire screen
-		cameraView.videoPlayerView.videoGravity = .resizeAspectFill
-	}
+    // Live Preview + inputs/outputs
 
+    private func setUpCaptureSession() {
+        // Add inputs
+        
+        // Camera input
+        
+        // Microphone input
+        
+         
+        // Add outputs
+        
+        // TODO: Start/Stop session
+    }
+    
+    private func bestCamera() -> AVCaptureDevice {
+        // FUTURE: Toggle between front/back with a button
+        
+        // Ultra-wide lens (iPhone 11 Pro + Pro Max on back)
+        if let ultraWideCamera = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back) {
+            return ultraWideCamera
+        }
+        
+        // Wide angle lens (available on any iPhone - front/back)
+        if let wideAngleCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+            return wideAngleCamera
+        }
+        
+        // No cameras present (simulator)
+        fatalError("No camera available - are you on a simulator?")
+    }
+    
+    
+    // Recording
 
     @IBAction func recordButtonPressed(_ sender: Any) {
 
