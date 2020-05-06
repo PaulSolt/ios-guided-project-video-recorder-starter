@@ -12,6 +12,7 @@ import AVFoundation
 class CameraViewController: UIViewController {
 
     lazy private var captureSession = AVCaptureSession()
+    lazy private var fileOutput = AVCaptureMovieFileOutput()
     
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var cameraView: CameraPreviewView!
@@ -35,6 +36,10 @@ class CameraViewController: UIViewController {
         captureSession.stopRunning()
     }
 
+    private func updateViews() {
+        recordButton.isSelected = fileOutput.isRecording
+    }
+    
     // Live Preview + inputs/outputs
 
     private func setUpCaptureSession() {
@@ -57,6 +62,10 @@ class CameraViewController: UIViewController {
         
         
         // Add outputs
+        guard captureSession.canAddOutput(fileOutput) else {
+            fatalError("Error: cannot save movie with capture session")
+        }
+        captureSession.addOutput(fileOutput)
         
         captureSession.commitConfiguration()
         cameraView.session = captureSession
@@ -83,8 +92,22 @@ class CameraViewController: UIViewController {
     // Recording
 
     @IBAction func recordButtonPressed(_ sender: Any) {
+        toggleRecord()
+    }
 
-	}
+    // Reuse the logic in two places
+    @IBAction func recordButtonPressedFromMenuBar(_ sender: Any) {
+        toggleRecord()
+    }
+
+    // DRY: Don't repeat yourself
+    private func toggleRecord() {
+        if fileOutput.isRecording {
+            fileOutput.stopRecording()
+        } else {
+            fileOutput.startRecording(to: newRecordingURL(), recordingDelegate: self)
+        }
+    }
 	
 	/// Creates a new file URL in the documents directory
 	private func newRecordingURL() -> URL {
@@ -99,3 +122,19 @@ class CameraViewController: UIViewController {
 	}
 }
 
+extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        if let error = error {
+            print("Error saving video: \(error)")
+        } else {
+            // show movie
+        }
+        
+        updateViews()
+    }
+    
+    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        print("startedRecording: \(fileURL)")
+        updateViews()
+    }
+}
