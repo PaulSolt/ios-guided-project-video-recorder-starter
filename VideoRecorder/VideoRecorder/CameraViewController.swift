@@ -23,19 +23,43 @@ class CameraViewController: UIViewController {
         cameraView.videoPlayerView.videoGravity = .resizeAspectFill
         setUpCaptureSession()
     }
+    
+    // Use viewWillAppear so that before the view is displayed, we give the system time to load in video frames
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        captureSession.startRunning()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        captureSession.stopRunning()
+    }
 
     // Live Preview + inputs/outputs
 
     private func setUpCaptureSession() {
         // Add inputs
-        
+        captureSession.beginConfiguration()
         // Camera input
+        let camera = bestCamera()
+        
+        guard let cameraInput = try? AVCaptureDeviceInput(device: camera),
+            captureSession.canAddInput(cameraInput) else {
+                fatalError("Error adding camera to capture session")
+        }
+        captureSession.addInput(cameraInput)
+        
+        if captureSession.canSetSessionPreset(.hd1920x1080) {
+            captureSession.sessionPreset = .hd1920x1080
+        }
         
         // Microphone input
         
-         
+        
         // Add outputs
         
+        captureSession.commitConfiguration()
+        cameraView.session = captureSession
         // TODO: Start/Stop session
     }
     
@@ -55,7 +79,6 @@ class CameraViewController: UIViewController {
         // No cameras present (simulator)
         fatalError("No camera available - are you on a simulator?")
     }
-    
     
     // Recording
 
