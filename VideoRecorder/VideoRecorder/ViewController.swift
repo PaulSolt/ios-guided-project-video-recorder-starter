@@ -40,6 +40,8 @@ class ViewController: UIViewController {
             case .restricted:
                 // Parental controls (need to inform user they don't have access, maybe ask parents?)
                 fatalError("Show user UI to request permssion from boss/parent/self")
+            @unknown default:
+                fatalError("Apple added another enum value that we're not handling")
         }
     }
 
