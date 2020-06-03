@@ -11,7 +11,8 @@ import AVFoundation
 
 class CameraViewController: UIViewController {
 
-    lazy var captureSession = AVCaptureSession()
+    lazy private var captureSession = AVCaptureSession()
+    lazy private var fileOutput = AVCaptureMovieFileOutput()
     
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var cameraView: CameraPreviewView!
@@ -61,9 +62,12 @@ class CameraViewController: UIViewController {
         }
         
         // Outputs
+        guard captureSession.canAddOutput(fileOutput) else {
+            fatalError("Cannot add movie recording")
+        }
+        captureSession.addOutput(fileOutput)
         
         // Set the captureSession into our CameraPreviewView
-        
         captureSession.commitConfiguration()
         cameraView.session = captureSession
     }
