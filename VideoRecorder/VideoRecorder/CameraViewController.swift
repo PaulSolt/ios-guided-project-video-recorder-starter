@@ -24,6 +24,18 @@ class CameraViewController: UIViewController {
         
         setUpCaptureSession()
 	}
+    
+    // startRunning?
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        captureSession.startRunning()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        captureSession.stopRunning()
+    }
 
     private func setUpCaptureSession() {
         
@@ -31,10 +43,22 @@ class CameraViewController: UIViewController {
         // Inputs
         
         // Camera
+        let camera = bestCamera()
+        
+        guard let cameraInput = try? AVCaptureDeviceInput(device: camera),
+            captureSession.canAddInput(cameraInput) else {
+                // FUTURE: Display the error so you understand why it failed
+                fatalError("Cannot create camera input, do something better than crashing?")
+        }
+        captureSession.addInput(cameraInput)
         
         // Microphone
         
         // Quality level
+        
+        if captureSession.canSetSessionPreset(.hd1920x1080) {
+            captureSession.sessionPreset = .hd1920x1080
+        }
         
         // Outputs
         
