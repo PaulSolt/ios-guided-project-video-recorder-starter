@@ -58,6 +58,14 @@ class CameraViewController: UIViewController {
         
         // Microphone
         
+        let microphone = bestAudio()
+        guard let audioInput = try? AVCaptureDeviceInput(device: microphone),
+            captureSession.canAddInput(audioInput) else {
+                fatalError("Can't create and add input from microphone")
+        }
+        captureSession.addInput(audioInput)
+
+        
         // Quality level
         
         if captureSession.canSetSessionPreset(.hd1920x1080) {
@@ -87,6 +95,13 @@ class CameraViewController: UIViewController {
         
         // Simulator or the requested hardware cameras doesn't work!
         fatalError("No camera available, are you on a simulator?") // TODO: show UI instead of a fatal error
+    }
+    
+    private func bestAudio() -> AVCaptureDevice {
+        if let device = AVCaptureDevice.default(for: .audio) {
+            return device
+        }
+        fatalError("No audio")
     }
     
     private func updateViews() {
