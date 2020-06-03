@@ -86,10 +86,23 @@ class CameraViewController: UIViewController {
         fatalError("No camera available, are you on a simulator?") // TODO: show UI instead of a fatal error
     }
     
+    private func updateViews() {
+        recordButton.isSelected = fileOutput.isRecording
+    }
 
     @IBAction func recordButtonPressed(_ sender: Any) {
-
-	}
+        toggleRecording()
+    }
+    
+    private func toggleRecording() {
+        if fileOutput.isRecording {
+            fileOutput.stopRecording()
+            updateViews()
+        } else {
+            fileOutput.startRecording(to: newRecordingURL(), recordingDelegate: self)
+            updateViews()
+        }
+    }
 	
 	/// Creates a new file URL in the documents directory
 	private func newRecordingURL() -> URL {
@@ -104,3 +117,21 @@ class CameraViewController: UIViewController {
 	}
 }
 
+extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
+    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        print("didStartRecording: \(fileURL)")
+        
+        updateViews()
+    }
+
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        if let error = error {
+            print("Error saving movie: \(error)")
+            return
+        }
+        print("Play movie!")
+        // play movie
+        
+        updateViews()
+    }
+}
