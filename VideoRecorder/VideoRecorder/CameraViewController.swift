@@ -14,6 +14,9 @@ class CameraViewController: UIViewController {
     lazy private var captureSession = AVCaptureSession()
     lazy private var fileOutput = AVCaptureMovieFileOutput()
     
+    private var player: AVPlayer?
+    private var playerView: VideoPlayerView!
+    
     @IBOutlet var recordButton: UIButton!
     @IBOutlet var cameraView: CameraPreviewView!
 
@@ -115,6 +118,29 @@ class CameraViewController: UIViewController {
 		let fileURL = documentsDirectory.appendingPathComponent(name).appendingPathExtension("mov")
 		return fileURL
 	}
+    
+    private func playMovie(url: URL) {
+        let player = AVPlayer(url: url)
+        
+        if playerView == nil {
+            // setup view
+            let playerView = VideoPlayerView()
+            playerView.player = player
+            
+            // customize the frame
+            var frame = view.bounds
+            frame.size.height = frame.size.height / 4
+            frame.size.width = frame.size.width / 4
+            frame.origin.y = view.layoutMargins.top
+            
+            playerView.frame = frame
+            
+            view.addSubview(playerView)
+            self.playerView = playerView
+        }
+        player.play()
+        self.player = player
+    }
 }
 
 extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
@@ -130,7 +156,10 @@ extension CameraViewController: AVCaptureFileOutputRecordingDelegate {
             return
         }
         print("Play movie!")
-        // play movie
+        
+        DispatchQueue.main.async {
+            self.playMovie(url: outputFileURL)
+        }
         
         updateViews()
     }
