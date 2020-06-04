@@ -146,7 +146,7 @@ class CameraViewController: UIViewController {
             var frame = view.bounds
             frame.size.height = frame.size.height / 4
             frame.size.width = frame.size.width / 4
-            frame.origin.y = view.layoutMargins.top
+            frame.origin.y = view.directionalLayoutMargins.top
             
             playerView.frame = frame
             
